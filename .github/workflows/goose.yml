@@ -24,6 +24,8 @@ jobs:
                fetch-depth: 0
 
          - name: Gather PR information
+           env:
+             GH_TOKEN: ${{ github.token }}
            run: |
                   {
                   echo "# Files Changed"
@@ -79,6 +81,8 @@ jobs:
                   > pr_comment.txt
 
          - name: Post comment to PR
+           env:
+             GH_TOKEN: ${{ github.token }}
            run: |
                   cat -A pr_comment.txt
                   gh pr comment $PR_NUMBER --body-file pr_comment.txt
