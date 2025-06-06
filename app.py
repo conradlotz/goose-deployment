@@ -77,6 +77,12 @@ class ContactManager:
                 results.append(contact)
         return results
     
+    def find_contact_by_email(self, email):
+        for contact in self.contacts:
+            if contact.email.lower() == email.lower():
+                return contact
+        return None
+    
     def delete_contact(self, email):
         for i, contact in enumerate(self.contacts):
             if contact.email.lower() == email.lower():
@@ -170,10 +176,20 @@ def main():
             print("\n🗑️ Delete Contact")
             email = input("Enter email of contact to delete: ").strip()
             if email:
-                success, message = manager.delete_contact(email)
-                print(f"{'✅' if success else '❌'} {message}")
+                contact = manager.find_contact_by_email(email)
+                if contact:
+                    print("\nContact to be deleted:")
+                    display_contacts([contact])
+                    confirm = input("Are you sure you want to delete this contact? (y/n): ").strip().lower()
+                    if confirm in ['y', 'yes']:
+                        success, message = manager.delete_contact(email)
+                        print(f"{'✅' if success else '❌'} {message}")
+                    else:
+                        print("Deletion cancelled.")
+                else:
+                    print("❌ Contact not found.")
             else:
-                print("❌ Please enter an email")
+                print("❌ Please enter an email.")
         
         elif choice == '5':
             contacts = manager.get_all_contacts()
