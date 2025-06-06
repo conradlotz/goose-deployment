@@ -32,6 +32,7 @@ class Contact:
 
 
 class ContactManager:
+    #comment
     def __init__(self, filename="contacts.json"):
         self.filename = filename
         self.contacts = []
