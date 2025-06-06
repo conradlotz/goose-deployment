@@ -69,20 +69,21 @@ jobs:
 
          - name: Run Goose and filter output
            run: |
-                  goose run --instructions instructions.txt | \
-                  # Remove ANSI color codes
-                  sed -E 's/\x1B\[[0-9;]*[mK]//g' | \
-                  # Remove session/logging lines
+                  echo '### :goose: Goose Summary' > pr_comment.txt
+                  set -o pipefail
+                  export OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+                  goose run --instructions instructions.txt | tee goose_output.log
+                  cat goose_output.log | \
+                  sed -E 's/\\x1B\\[[0-9;]*[mK]//g' | \
                   grep -v "logging to /home/runner/.config/goose/sessions/" | \
                   grep -v "^starting session" | \
                   grep -v "^Closing session" | \
-                  # Trim trailing whitespace
-                  sed 's/[[:space:]]*$//' \
-                  > pr_comment.txt
+                  sed 's/[[:space:]]*$//' | \
+                  grep . \
+                  >> pr_comment.txt
 
          - name: Post comment to PR
            env:
              GH_TOKEN: ${{ github.token }}
            run: |
-                  cat -A pr_comment.txt
                   gh pr comment $PR_NUMBER --body-file pr_comment.txt
