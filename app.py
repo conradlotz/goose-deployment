@@ -47,25 +47,28 @@ class ContactManager:
         pattern = r'^[\d\s\-\(\)\+]+$'
         return re.match(pattern, phone) is not None and len(re.sub(r'[\s\-\(\)\+]', '', phone)) >= 10
     
-    def add_contact(self, name, phone, email, notes=""):
-        if not name.strip():
-            return False, "Name cannot be empty"
+    def add_contact(self):
+        print("\n➕ Add New Contact")
+        name = input("Name: ").strip()
+        phone = input("Phone: ").strip()
+        email = input("Email: ").strip()
+        notes = input("Notes (optional): ").strip()
+
+        if not name:
+            success, message = False, "Name cannot be empty"
+        elif not self.validate_phone(phone):
+            success, message = False, "Invalid phone number format"
+        elif not self.validate_email(email):
+            success, message = False, "Invalid email format"
+        elif any(c.email.lower() == email.lower() for c in self.contacts):
+            success, message = False, "Contact with this email already exists"
+        else:
+            contact = Contact(name, phone, email, notes)
+            self.contacts.append(contact)
+            self.save_contacts()
+            success, message = True, "Contact added successfully"
         
-        if not self.validate_phone(phone):
-            return False, "Invalid phone number format"
-        
-        if not self.validate_email(email):
-            return False, "Invalid email format"
-        
-        # Check for duplicates
-        for contact in self.contacts:
-            if contact.email.lower() == email.lower():
-                return False, "Contact with this email already exists"
-        
-        contact = Contact(name.strip(), phone.strip(), email.strip(), notes.strip())
-        self.contacts.append(contact)
-        self.save_contacts()
-        return True, "Contact added successfully"
+        print(f"{'✅' if success else '❌'} {message}")
     
     def search_contacts(self, query):
         query = query.lower()
@@ -151,14 +154,7 @@ def main():
         choice = input("Enter your choice (1-6): ").strip()
         
         if choice == '1':
-            print("\n➕ Add New Contact")
-            name = input("Name: ").strip()
-            phone = input("Phone: ").strip()
-            email = input("Email: ").strip()
-            notes = input("Notes (optional): ").strip()
-            
-            success, message = manager.add_contact(name, phone, email, notes)
-            print(f"{'✅' if success else '❌'} {message}")
+            manager.add_contact()
         
         elif choice == '2':
             print("\n👥 All Contacts")
